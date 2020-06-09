@@ -178,3 +178,46 @@ export const leadersFailed = (errmess) => ({
   payload: errmess
 });
 
+export const postFeedback = (id,firstname,lastname, email,telnum, agree, contactType, message) => (dispatch) => {
+
+  const newFeedback = {
+      firstname:firstname,
+      lastname:lastname,
+      email:email,
+      telnum:telnum,
+      agree:agree,
+      contactType:contactType,
+      message:message,
+      id:id,
+  };
+  newFeedback.date = new Date().toISOString();
+  
+  return fetch(baseUrl + 'feedback', {
+      method: "POST",
+      body: JSON.stringify(newFeedback),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "same-origin"
+  })
+  .then(response => {
+      if (response.ok) {
+        return response;
+      } else {
+        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+        error.response = response;
+        throw error;
+      }
+    },
+    error => {
+          throw error;
+    })
+  .then(response => response.json())
+  .then(response => dispatch(addFeedback(response)))
+  .then(response =>alert("Thank you for your feedback!" + JSON.stringify(response)))
+  .catch(error =>  { console.log('post comments', error.message); alert('Your comment could not be posted\nError: '+error.message); });
+};
+export const addFeedback = (comment) => ({
+  type: ActionTypes.ADD_FEEDBACK,
+  payload: comment
+});
